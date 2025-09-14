@@ -20,7 +20,13 @@ class _SketchScreenState extends State<SketchScreen> {
     return const CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: NavbarTitle(),
-        trailing: NavbarButton(),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            NavbarPromptButton(),
+            NavbarClearButton(),
+          ],
+        ),
       ),
       child: SafeArea(
         child: Column(

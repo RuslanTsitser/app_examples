@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 
+import '../state_manager/sketch_notifier.dart';
 import 'prompt_settings_bottom_sheet.dart';
 
-class NavbarButton extends StatelessWidget {
-  const NavbarButton({
+class NavbarPromptButton extends StatelessWidget {
+  const NavbarPromptButton({
     super.key,
   });
 
@@ -27,4 +29,22 @@ Future<void> showPromptSettings(BuildContext context) {
     context: context,
     builder: (context) => const PromptSettingsBottomSheet(),
   );
+}
+
+class NavbarClearButton extends StatelessWidget {
+  const NavbarClearButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      child: const Icon(
+        CupertinoIcons.clear,
+        color: CupertinoColors.systemBlue,
+      ),
+      onPressed: () {
+        context.read<SketchNotifier>().clearPoints();
+      },
+    );
+  }
 }
