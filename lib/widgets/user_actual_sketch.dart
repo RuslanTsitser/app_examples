@@ -1,27 +1,20 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 
-class UserActualSketch extends StatefulWidget {
+import '../state_manager/sketch_notifier.dart';
+
+class UserActualSketch extends StatelessWidget {
   const UserActualSketch({super.key});
 
   @override
-  State<UserActualSketch> createState() => _UserActualSketchState();
-}
-
-class _UserActualSketchState extends State<UserActualSketch> {
-  List<Offset?> points = [];
-
-  @override
   Widget build(BuildContext context) {
+    final points = context.watch<SketchNotifier>().points;
     return GestureDetector(
       onPanUpdate: (details) {
-        setState(() {
-          points.add(details.localPosition);
-        });
+        context.read<SketchNotifier>().addPoint(details.localPosition);
       },
       onPanEnd: (details) {
-        setState(() {
-          points.add(null);
-        });
+        context.read<SketchNotifier>().addPoint(null);
       },
       child: CustomPaint(
         painter: _SketchPainter(points: points),
