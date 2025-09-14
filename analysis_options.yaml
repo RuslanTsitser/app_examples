@@ -25,6 +25,11 @@ linter:
     prefer_relative_imports: true
     prefer_const_constructors_in_immutables: true
     prefer_const_declarations: true
+    always_declare_return_types: true
+
+analyzer:
+  errors:
+    strict_raw_type: error
 
 formatter:
   trailing_commas: preserve
