@@ -1,9 +1,10 @@
-import 'dart:developer';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
+import '../data/generate_image_repository_impl.dart';
 import '../state_manager/image_notifier.dart';
 
 class GenerateButton extends StatelessWidget {
@@ -18,7 +19,24 @@ class GenerateButton extends StatelessWidget {
       child: SizedBox(
         width: double.infinity,
         child: CupertinoButton.filled(
-          onPressed: () => generateSketch(context),
+          onPressed: () async {
+            final imageNotifier = context.read<ImageNotifier>();
+            final image = await imageNotifier.getImage();
+            final imageBytes = await image?.toByteData(format: ui.ImageByteFormat.png);
+            const repository = GenerateImageRepositoryImpl();
+
+            if (imageBytes == null) return;
+            final generatedImage = await repository.generateImage(
+              image: imageBytes.buffer.asUint8List(),
+              prompt: 'Сгенерируй на основе этого скетча другой скетч на том же фоне',
+            );
+
+            if (generatedImage == null || !context.mounted) return;
+            showCupertinoDialog(
+              context: context,
+              builder: (context) => _Dialog(generatedImage: generatedImage),
+            );
+          },
           child: const Text(
             'Генерировать',
             style: TextStyle(
@@ -32,42 +50,17 @@ class GenerateButton extends StatelessWidget {
   }
 }
 
-Future<void> generateSketch(BuildContext context) {
-  // Здесь будет логика генерации скетча
-  return showCupertinoDialog(
-    context: context,
-    builder: (context) => const _Dialog(),
-  );
-}
-
-class _Dialog extends StatefulWidget {
-  const _Dialog();
-
-  @override
-  State<_Dialog> createState() => _DialogState();
-}
-
-class _DialogState extends State<_Dialog> {
-  ui.Image? image;
-  @override
-  void initState() {
-    super.initState();
-    _getImage();
-  }
-
-  Future<void> _getImage() async {
-    image = await context.read<ImageNotifier>().getImage();
-    log(image.toString());
-    setState(() {});
-  }
+class _Dialog extends StatelessWidget {
+  const _Dialog({required this.generatedImage});
+  final Uint8List? generatedImage;
 
   @override
   Widget build(BuildContext context) {
     return CupertinoAlertDialog(
       title: const Text('Генерация'),
-      content: image == null
+      content: generatedImage == null
           ? const Text('Генерируем скетч по промпту: "prompt"')
-          : SizedBox(height: 300, width: 300, child: RawImage(image: image!)),
+          : SizedBox(height: 300, width: 300, child: Image.memory(generatedImage!)),
       actions: [
         CupertinoDialogAction(
           child: const Text('Отмена'),
