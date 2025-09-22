@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
+import '../state_manager/image_notifier.dart';
 import '../state_manager/sketch_notifier.dart';
 
 class UserActualSketch extends StatelessWidget {
@@ -16,9 +17,12 @@ class UserActualSketch extends StatelessWidget {
       onPanEnd: (details) {
         context.read<SketchNotifier>().addPoint(null);
       },
-      child: CustomPaint(
-        painter: _SketchPainter(points: points),
-        child: const SizedBox.expand(),
+      child: RepaintBoundary(
+        key: context.read<ImageNotifier>().imageKey,
+        child: CustomPaint(
+          painter: _SketchPainter(points: points),
+          child: const SizedBox.expand(),
+        ),
       ),
     );
   }
